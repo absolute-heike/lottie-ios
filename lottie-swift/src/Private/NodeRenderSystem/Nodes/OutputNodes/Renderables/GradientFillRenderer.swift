@@ -8,23 +8,14 @@
 import Foundation
 import QuartzCore
 
-/// A rendered for a Path Fill
-final class GradientFillRenderer: PassThroughOutputNode, Renderable {
-  
-  var shouldRenderInContext: Bool = true
-  
-  func updateShapeLayer(layer: CAShapeLayer) {
-    // Not applicable
-  }
-  
-  func render(_ inContext: CGContext) {
-    guard inContext.path != nil && inContext.path!.isEmpty == false else {
-      return
-    }
-    hasUpdate = false
+private final class GradientFillLayer: CALayer {
+
+  override func draw(in ctx: CGContext) {
+    super.draw(in: ctx)
+
     var alphaColors = [CGColor]()
     var alphaLocations = [CGFloat]()
-    
+
     var gradientColors = [CGColor]()
     var colorLocations = [CGFloat]()
     let colorSpace = CGColorSpaceCreateDeviceRGB()
@@ -36,7 +27,7 @@ final class GradientFillRenderer: PassThroughOutputNode, Renderable {
         colorLocations.append(colors[ix])
       }
     }
-    
+
     var drawMask = false
     for i in stride(from: (numberOfColors * 4), to: colors.endIndex, by: 2) {
       let alpha = colors[i + 1]
@@ -48,25 +39,25 @@ final class GradientFillRenderer: PassThroughOutputNode, Renderable {
         alphaColors.append(color)
       }
     }
-    
-    inContext.setAlpha(opacity)
-    inContext.clip()
-    
+
+    ctx.setAlpha(CGFloat(opacity))
+    ctx.clip()
+
     /// First draw a mask is necessary.
     if drawMask {
       guard let maskGradient = CGGradient(colorsSpace: maskColorSpace,
                                           colors: alphaColors as CFArray,
                                           locations: alphaLocations),
         let maskContext = CGContext(data: nil,
-                                    width: inContext.width,
-                                    height: inContext.height,
+                                    width: ctx.width,
+                                    height: ctx .height,
                                     bitsPerComponent: 8,
-                                    bytesPerRow: inContext.width,
+                                    bytesPerRow: ctx.width,
                                     space: maskColorSpace,
                                     bitmapInfo: 0) else { return }
       let flipVertical = CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: CGFloat(maskContext.height))
       maskContext.concatenate(flipVertical)
-      maskContext.concatenate(inContext.ctm)
+      maskContext.concatenate(ctx.ctm)
       if type == .linear {
         maskContext.drawLinearGradient(maskGradient, start: start, end: end, options: [.drawsAfterEndLocation, .drawsBeforeStartLocation])
       } else {
@@ -74,17 +65,83 @@ final class GradientFillRenderer: PassThroughOutputNode, Renderable {
       }
       /// Clips the gradient
       if let alphaMask = maskContext.makeImage() {
-        inContext.clip(to: inContext.boundingBoxOfClipPath, mask: alphaMask)
+        ctx.clip(to: ctx.boundingBoxOfClipPath, mask: alphaMask)
       }
     }
-    
+
     /// Now draw the gradient
     guard let gradient = CGGradient(colorsSpace: colorSpace, colors: gradientColors as CFArray, locations: colorLocations) else { return }
     if type == .linear {
-      inContext.drawLinearGradient(gradient, start: start, end: end, options: [.drawsAfterEndLocation, .drawsBeforeStartLocation])
+      ctx.drawLinearGradient(gradient, start: start, end: end, options: [.drawsAfterEndLocation, .drawsBeforeStartLocation])
     } else {
-      inContext.drawRadialGradient(gradient, startCenter: start, startRadius: 0, endCenter: start, endRadius: start.distanceTo(end), options: [.drawsAfterEndLocation, .drawsBeforeStartLocation])
+      ctx.drawRadialGradient(gradient, startCenter: start, startRadius: 0, endCenter: start, endRadius: start.distanceTo(end), options: [.drawsAfterEndLocation, .drawsBeforeStartLocation])
     }
+  }
+
+  var start: CGPoint = .zero {
+    didSet {
+      setNeedsDisplay()
+    }
+  }
+
+  var numberOfColors: Int = 0 {
+    didSet {
+      setNeedsDisplay()
+    }
+  }
+
+  var colors: [CGFloat] = [] {
+    didSet {
+      setNeedsDisplay()
+    }
+  }
+
+  var end: CGPoint = .zero {
+    didSet {
+      setNeedsDisplay()
+    }
+  }
+
+  var type: GradientType = .none {
+    didSet {
+      setNeedsDisplay()
+    }
+  }
+}
+
+/// A rendered for a Path Fill
+final class GradientFillRenderer: PassThroughOutputNode, Renderable {
+
+  private let gradientLayer: GradientFillLayer = GradientFillLayer()
+  private let maskLayer: CAShapeLayer = CAShapeLayer()
+
+  override init(parent: NodeOutput?) {
+    super.init(parent: parent)
+
+    maskLayer.fillColor = UIColor.white.cgColor
+    gradientLayer.mask = maskLayer
+  }
+
+  func updateShapeLayer(layer: CAShapeLayer) {
+    hasUpdate = false
+
+    guard let path = outputPath else {
+      return
+    }
+
+    if gradientLayer.superlayer != layer {
+      layer.addSublayer(gradientLayer)
+    }
+    maskLayer.path = path
+    gradientLayer.bounds = path.boundingBox
+    maskLayer.bounds = gradientLayer.bounds
+    
+    gradientLayer.start = start
+    gradientLayer.numberOfColors = numberOfColors
+    gradientLayer.colors = colors
+    gradientLayer.end = end
+    gradientLayer.opacity = Float(opacity)
+    gradientLayer.type = type
   }
   
   var start: CGPoint = .zero {
