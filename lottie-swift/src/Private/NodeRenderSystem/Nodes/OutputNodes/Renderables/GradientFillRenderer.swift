@@ -7,6 +7,7 @@
 
 import Foundation
 import QuartzCore
+import UIKit
 
 private final class GradientFillLayer: CALayer {
 
