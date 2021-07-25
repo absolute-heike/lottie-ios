@@ -69,8 +69,6 @@ extension LineCap {
 /// A rendered that renders a stroke on a path.
 final class StrokeRenderer: PassThroughOutputNode, Renderable {
   
-  var shouldRenderInContext: Bool = false
-  
   var color: CGColor? {
     didSet {
       hasUpdate = true
@@ -117,34 +115,6 @@ final class StrokeRenderer: PassThroughOutputNode, Renderable {
     didSet {
       hasUpdate = true
     }
-  }
-  
-  func renderBoundsFor(_ boundingBox: CGRect) -> CGRect {
-    return boundingBox.insetBy(dx: -width, dy: -width)
-  }
-  
-  func setupForStroke(_ inContext: CGContext) {
-    inContext.setLineWidth(width)
-    inContext.setMiterLimit(miterLimit)
-    inContext.setLineCap(lineCap.cgLineCap)
-    inContext.setLineJoin(lineJoin.cgLineJoin)
-    if let dashPhase = dashPhase, let lengths = dashLengths {
-      inContext.setLineDash(phase: dashPhase, lengths: lengths)
-    } else {
-      inContext.setLineDash(phase: 0, lengths: [])
-    }
-  }
-  
-  func render(_ inContext: CGContext) {
-    guard inContext.path != nil && inContext.path!.isEmpty == false else {
-      return
-    }
-    guard let color = color else { return }
-    hasUpdate = false
-    setupForStroke(inContext)
-    inContext.setAlpha(opacity)
-    inContext.setStrokeColor(color)
-    inContext.strokePath()
   }
   
   func updateShapeLayer(layer: CAShapeLayer) {
