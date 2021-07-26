@@ -120,6 +120,19 @@ final class GradientFillRenderer: PassThroughOutputNode, Renderable {
 
     maskLayer.fillColor = CGColor(colorSpace: CGColorSpaceCreateDeviceRGB(), components: [1, 1, 1, 1])
     gradientLayer.mask = maskLayer
+
+    maskLayer.actions = [
+      "startPoint" : NSNull(),
+      "endPoint" : NSNull(),
+      "opacity" : NSNull(),
+      "locations" : NSNull(),
+      "colors" : NSNull(),
+      "bounds" : NSNull(),
+      "anchorPoint" : NSNull(),
+      "isRadial" : NSNull(),
+      "path" : NSNull()
+    ]
+    gradientLayer.actions = maskLayer.actions
   }
 
   func updateShapeLayer(layer: CAShapeLayer) {
@@ -132,10 +145,18 @@ final class GradientFillRenderer: PassThroughOutputNode, Renderable {
     if gradientLayer.superlayer != layer {
       layer.addSublayer(gradientLayer)
     }
+
+    let frame = path.boundingBox
+    let anchor = CGPoint(x: -frame.origin.x / frame.size.width,
+                         y: -frame.origin.y / frame.size.height)
     maskLayer.path = path
-    gradientLayer.bounds = path.boundingBox
     maskLayer.bounds = gradientLayer.bounds
-    
+    maskLayer.anchorPoint = anchor
+
+    gradientLayer.bounds = path.boundingBox
+    gradientLayer.anchorPoint = anchor
+
+    // setup gradient properties
     gradientLayer.start = start
     gradientLayer.numberOfColors = numberOfColors
     gradientLayer.colors = colors
