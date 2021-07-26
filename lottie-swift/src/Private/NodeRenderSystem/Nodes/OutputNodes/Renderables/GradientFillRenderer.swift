@@ -118,7 +118,7 @@ final class GradientFillRenderer: PassThroughOutputNode, Renderable {
   override init(parent: NodeOutput?) {
     super.init(parent: parent)
 
-    maskLayer.fillColor = UIColor.white.cgColor
+    maskLayer.fillColor = CGColor(colorSpace: CGColorSpaceCreateDeviceRGB(), components: [1, 1, 1, 1])
     gradientLayer.mask = maskLayer
   }
 
