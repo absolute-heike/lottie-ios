@@ -150,17 +150,17 @@ final class GradientFillRenderer: PassThroughOutputNode, Renderable {
     let anchor = CGPoint(x: -frame.origin.x / frame.size.width,
                          y: -frame.origin.y / frame.size.height)
     maskLayer.path = path
-    maskLayer.bounds = gradientLayer.bounds
+    maskLayer.bounds = path.boundingBox
     maskLayer.anchorPoint = anchor
 
-    gradientLayer.bounds = path.boundingBox
+    gradientLayer.bounds = maskLayer.bounds
     gradientLayer.anchorPoint = anchor
 
     // setup gradient properties
     gradientLayer.start = start
+    gradientLayer.end = end
     gradientLayer.numberOfColors = numberOfColors
     gradientLayer.colors = colors
-    gradientLayer.end = end
     gradientLayer.opacity = Float(opacity)
     gradientLayer.type = type
   }
