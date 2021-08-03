@@ -11,8 +11,6 @@ import QuartzCore
 private final class GradientFillLayer: CALayer {
 
   override func draw(in ctx: CGContext) {
-    super.draw(in: ctx)
-
     var alphaColors = [CGColor]()
     var alphaLocations = [CGFloat]()
 
@@ -41,7 +39,6 @@ private final class GradientFillLayer: CALayer {
     }
 
     ctx.setAlpha(CGFloat(opacity))
-    ctx.clip()
 
     /// First draw a mask is necessary.
     if drawMask {
@@ -50,7 +47,7 @@ private final class GradientFillLayer: CALayer {
                                           locations: alphaLocations),
         let maskContext = CGContext(data: nil,
                                     width: ctx.width,
-                                    height: ctx .height,
+                                    height: ctx.height,
                                     bitsPerComponent: 8,
                                     bytesPerRow: ctx.width,
                                     space: maskColorSpace,
@@ -143,6 +140,7 @@ final class GradientFillRenderer: PassThroughOutputNode, Renderable {
     }
 
     if gradientLayer.superlayer != layer {
+      layer.fillColor = nil
       layer.addSublayer(gradientLayer)
     }
 
@@ -150,17 +148,17 @@ final class GradientFillRenderer: PassThroughOutputNode, Renderable {
     let anchor = CGPoint(x: -frame.origin.x / frame.size.width,
                          y: -frame.origin.y / frame.size.height)
     maskLayer.path = path
-    maskLayer.bounds = gradientLayer.bounds
+    maskLayer.bounds = path.boundingBox
     maskLayer.anchorPoint = anchor
 
-    gradientLayer.bounds = path.boundingBox
+    gradientLayer.bounds = maskLayer.bounds
     gradientLayer.anchorPoint = anchor
 
     // setup gradient properties
     gradientLayer.start = start
+    gradientLayer.end = end
     gradientLayer.numberOfColors = numberOfColors
     gradientLayer.colors = colors
-    gradientLayer.end = end
     gradientLayer.opacity = Float(opacity)
     gradientLayer.type = type
   }
