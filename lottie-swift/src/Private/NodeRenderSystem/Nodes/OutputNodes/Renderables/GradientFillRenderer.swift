@@ -11,8 +11,6 @@ import QuartzCore
 private final class GradientFillLayer: CALayer {
 
   override func draw(in ctx: CGContext) {
-    super.draw(in: ctx)
-
     var alphaColors = [CGColor]()
     var alphaLocations = [CGFloat]()
 
@@ -50,7 +48,7 @@ private final class GradientFillLayer: CALayer {
                                           locations: alphaLocations),
         let maskContext = CGContext(data: nil,
                                     width: ctx.width,
-                                    height: ctx .height,
+                                    height: ctx.height,
                                     bitsPerComponent: 8,
                                     bytesPerRow: ctx.width,
                                     space: maskColorSpace,
@@ -143,6 +141,7 @@ final class GradientFillRenderer: PassThroughOutputNode, Renderable {
     }
 
     if gradientLayer.superlayer != layer {
+      layer.fillColor = nil
       layer.addSublayer(gradientLayer)
     }
 
