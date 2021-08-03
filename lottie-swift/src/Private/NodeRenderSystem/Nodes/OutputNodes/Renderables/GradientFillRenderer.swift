@@ -39,7 +39,6 @@ private final class GradientFillLayer: CALayer {
     }
 
     ctx.setAlpha(CGFloat(opacity))
-    ctx.clip()
 
     /// First draw a mask is necessary.
     if drawMask {
