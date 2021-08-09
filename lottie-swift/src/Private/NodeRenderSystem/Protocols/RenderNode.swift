@@ -21,6 +21,9 @@ protocol Renderable {
   var hasUpdate: Bool { get }
   
   func hasRenderUpdates(_ forFrame: CGFloat) -> Bool
+
+  /// Opportunity for renderers to inject sublayers
+  func setupSublayers(layer: CAShapeLayer)
   
   /// Passes in the CAShapeLayer to update
   func updateShapeLayer(layer: CAShapeLayer)

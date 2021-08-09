@@ -31,7 +31,10 @@ extension FillRule {
 
 /// A rendered for a Path Fill
 final class FillRenderer: PassThroughOutputNode, Renderable {
-  
+  func setupSublayers(layer: CAShapeLayer) {
+    // do nothing
+  }
+
   func updateShapeLayer(layer: CAShapeLayer) {
     layer.fillColor = color
     layer.opacity = Float(opacity)

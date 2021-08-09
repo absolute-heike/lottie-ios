@@ -43,6 +43,8 @@ final class ShapeRenderLayer: ShapeContainerLayer {
       "hidden" : NSNull(),
     ]
     addSublayer(shapeLayer)
+
+    renderer.setupSublayers(layer: shapeLayer)
   }
   
   override init(layer: Any) {

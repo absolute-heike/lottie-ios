@@ -11,7 +11,10 @@ import QuartzCore
 // MARK: - Renderer
 
 final class GradientStrokeRenderer: PassThroughOutputNode, Renderable {
-  
+  func setupSublayers(layer: CAShapeLayer) {
+    // TODO: Implement Strike rendering
+  }
+
   override func hasOutputUpdates(_ forFrame: CGFloat) -> Bool {
     let updates = super.hasOutputUpdates(forFrame)
     return updates || strokeRender.hasUpdate || gradientRender.hasUpdate

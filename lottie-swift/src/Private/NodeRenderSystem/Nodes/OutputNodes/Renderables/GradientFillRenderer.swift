@@ -93,6 +93,12 @@ private final class GradientFillLayer: CALayer {
     }
   }
 
+  override var opacity: Float {
+    didSet {
+      setNeedsDisplay()
+    }
+  }
+
   var end: CGPoint = .zero {
     didSet {
       setNeedsDisplay()
@@ -132,16 +138,16 @@ final class GradientFillRenderer: PassThroughOutputNode, Renderable {
     gradientLayer.actions = maskLayer.actions
   }
 
+  func setupSublayers(layer: CAShapeLayer) {
+    layer.addSublayer(gradientLayer)
+    layer.fillColor = nil
+  }
+
   func updateShapeLayer(layer: CAShapeLayer) {
     hasUpdate = false
-
-    guard let path = outputPath else {
+    
+    guard let path = layer.path else {
       return
-    }
-
-    if gradientLayer.superlayer != layer {
-      layer.fillColor = nil
-      layer.addSublayer(gradientLayer)
     }
 
     let frame = path.boundingBox

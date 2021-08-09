@@ -68,7 +68,10 @@ extension LineCap {
 
 /// A rendered that renders a stroke on a path.
 final class StrokeRenderer: PassThroughOutputNode, Renderable {
-  
+  func setupSublayers(layer: CAShapeLayer) {
+    // do nothing
+  }
+
   var color: CGColor? {
     didSet {
       hasUpdate = true
