@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'lottie-ios-performance-fix'
-  s.version          = '3.2.3.1'
+  s.version          = '3.2.3.2'
   s.summary          = 'A library to render native animations from bodymovin json. Now in Swift!'
 
   s.description = <<-DESC
