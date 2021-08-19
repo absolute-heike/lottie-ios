@@ -38,8 +38,6 @@ private final class GradientFillLayer: CALayer {
       }
     }
 
-    ctx.setAlpha(CGFloat(opacity))
-
     /// First draw a mask is necessary.
     if drawMask {
       guard let maskGradient = CGGradient(colorsSpace: maskColorSpace,
@@ -88,12 +86,6 @@ private final class GradientFillLayer: CALayer {
   }
 
   var colors: [CGFloat] = [] {
-    didSet {
-      setNeedsDisplay()
-    }
-  }
-
-  override var opacity: Float {
     didSet {
       setNeedsDisplay()
     }
@@ -204,5 +196,4 @@ final class GradientFillRenderer: PassThroughOutputNode, Renderable {
       hasUpdate = true
     }
   }
-  
 }
